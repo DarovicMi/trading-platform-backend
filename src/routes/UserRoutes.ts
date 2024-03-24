@@ -6,6 +6,7 @@ import { checkRole } from "../middleware/CheckRole";
 import { UserRoles } from "../constants/user/UserRoles";
 import { checkPermissions } from "../middleware/CheckPermission";
 import { Permissions } from "../constants/permission/Permissions";
+import { csrfProtection } from "../middleware/CheckCSRF";
 
 const router = Router();
 
@@ -35,6 +36,7 @@ router.put(
     checkJwt,
     checkRole([UserRoles.ADMIN, UserRoles.USER]),
     checkPermissions([Permissions.UPDATE_CURRENT_USER]),
+    csrfProtection,
   ],
   (req: Request, res: Response) => userController.updateUser(req, res)
 );
@@ -44,6 +46,7 @@ router.delete(
     checkJwt,
     checkRole([UserRoles.ADMIN, UserRoles.USER]),
     checkPermissions([Permissions.DELETE_CURRENT_USER]),
+    csrfProtection,
   ],
   (req: Request, res: Response) => userController.deleteUser(req, res)
 );

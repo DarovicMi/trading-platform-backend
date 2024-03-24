@@ -7,6 +7,7 @@ import { UserRoles } from "../constants/user/UserRoles";
 import { Request, Response } from "express";
 import { checkPermissions } from "../middleware/CheckPermission";
 import { Permissions } from "../constants/permission/Permissions";
+import { csrfProtection } from "../middleware/CheckCSRF";
 
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router.post(
     checkJwt,
     checkRole([UserRoles.ADMIN]),
     checkPermissions([Permissions.CREATE_ROLE]),
+    csrfProtection,
   ],
   (req: Request, res: Response) => roleController.createRole(req, res)
 );
@@ -28,6 +30,7 @@ router.put(
     checkJwt,
     checkRole([UserRoles.ADMIN]),
     checkPermissions([Permissions.UPDATE_ROLE]),
+    csrfProtection,
   ],
   (req: Request, res: Response) => roleController.updateRole(req, res)
 );
@@ -37,6 +40,7 @@ router.delete(
     checkJwt,
     checkRole([UserRoles.ADMIN]),
     checkPermissions([Permissions.DELETE_ROLE]),
+    csrfProtection,
   ],
   (req: Request, res: Response) => roleController.deleteRole(req, res)
 );

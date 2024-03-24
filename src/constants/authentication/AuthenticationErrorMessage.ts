@@ -5,4 +5,5 @@ export enum AuthenticationErrorMessage {
   REFRESH_TOKEN_INVALID = "Invalid Refresh Token.",
   ACCESS_TOKEN_EXPIRED = "Expired access token.",
   NO_TOKEN = "No token provided.",
+  CSRF_TOKEN_NOT_FOUND = "CSRF Token not found.",
 }
