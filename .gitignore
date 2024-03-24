@@ -1,0 +1,15 @@
+# Dependency directories
+node_modules/
+
+# Env variables
+.env
+
+# Build output
+/dist
+
+# Logs
+*.log
+
+# Others
+*.pid
+*.seed
