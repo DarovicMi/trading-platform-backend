@@ -146,4 +146,46 @@ export class AuthController {
 
     res.send({ accessToken: newAccessToken, refreshToken: newRefreshToken });
   };
+
+  static getCurrentLoggedInUser = async (req: Request, res: Response) => {
+    try {
+      const token = req.cookies[JWT_ACCESS_TOKEN_STRING];
+      if (!token) {
+        return res
+          .status(401)
+          .send({ message: AuthenticationErrorMessage.NO_TOKEN });
+      }
+
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const userId = (decoded as jwt.JwtPayload).userId;
+      if (!userId) {
+        return res
+          .status(401)
+          .send({ message: AuthenticationErrorMessage.ACCESS_TOKEN_INVALID });
+      }
+
+      const userRepository = AppDataSource.getRepository(User);
+      const user = await userRepository.findOneBy({
+        id: Number(userId),
+      });
+      if (!user) {
+        return res
+          .status(404)
+          .send({ message: UserErrorMessage.USER_NOT_FOUND });
+      }
+      const { password, refreshToken, ...userDetails } = user;
+      res.json(userDetails);
+    } catch (error) {
+      if (error instanceof jwt.TokenExpiredError) {
+        return res
+          .status(401)
+          .send({ message: AuthenticationErrorMessage.ACCESS_TOKEN_EXPIRED });
+      } else if (error instanceof jwt.JsonWebTokenError) {
+        return res
+          .status(401)
+          .send({ message: AuthenticationErrorMessage.ACCESS_TOKEN_INVALID });
+      }
+      res.status(500).send({ message: ServerErrorMessage.SERVER_ERROR });
+    }
+  };
 }

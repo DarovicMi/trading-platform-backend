@@ -85,10 +85,11 @@ export class UserController {
         userUpdates,
         isAdmin && roleId ? roleId : undefined
       );
+      const { password, refreshToken, ...userDetails } = updatedUser;
 
       return res.status(201).json({
         message: UserInformationalMessage.USER_UPDATED,
-        data: updatedUser,
+        data: userDetails,
       });
     } catch (error) {
       if (error instanceof UserNotFoundError) {
@@ -101,6 +102,13 @@ export class UserController {
   async deleteUser(req: Request, res: Response) {
     try {
       const userId = parseInt(req.params.id);
+      const requestingUserId = req.user?.userId;
+      if (userId !== requestingUserId) {
+        return res.status(403).json({
+          message:
+            RoleAuthorizationErrorMessage.ONLY_OWN_PROFILE_DELETE_ALLOWED,
+        });
+      }
       await this.userService.deleteUser(userId);
       return res
         .status(200)

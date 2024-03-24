@@ -15,8 +15,10 @@ const userController = new UserController(userService);
 router.post("/signUp", (req: Request, res: Response) =>
   userController.createUser(req, res)
 );
-router.get("/:id", checkJwt, (req: Request, res: Response) =>
-  userController.getUserById(req, res)
+router.get(
+  "/:id",
+  [checkJwt, checkRole([UserRoles.ADMIN])],
+  (req: Request, res: Response) => userController.getUserById(req, res)
 );
 router.get(
   "/",
@@ -27,11 +29,23 @@ router.get(
   ],
   (req: Request, res: Response) => userController.getAllUsers(req, res)
 );
-router.put("/:id/update", checkJwt, (req: Request, res: Response) =>
-  userController.updateUser(req, res)
+router.put(
+  "/:id/update",
+  [
+    checkJwt,
+    checkRole([UserRoles.ADMIN, UserRoles.USER]),
+    checkPermissions([Permissions.UPDATE_CURRENT_USER]),
+  ],
+  (req: Request, res: Response) => userController.updateUser(req, res)
 );
-router.delete("/:id/delete", checkJwt, (req: Request, res: Response) =>
-  userController.deleteUser(req, res)
+router.delete(
+  "/:id/delete",
+  [
+    checkJwt,
+    checkRole([UserRoles.ADMIN, UserRoles.USER]),
+    checkPermissions([Permissions.DELETE_CURRENT_USER]),
+  ],
+  (req: Request, res: Response) => userController.deleteUser(req, res)
 );
 
 export default router;
