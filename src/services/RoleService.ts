@@ -6,6 +6,8 @@ import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizati
 import { RoleAlreadyExistsError } from "../errors/role-authorization/RoleAlreadyExistsError";
 import { RoleNotFoundError } from "../errors/role-authorization/RoleNotFoundError";
 import { IRoleService } from "../interfaces/IRoleService";
+import { PermissionNotFoundError } from "../errors/permission/PermissionNotFoundError";
+import { PermissionErrorMessage } from "../constants/permission/PermissionErrorMessage";
 
 export class RoleService implements IRoleService {
   private roleRepository: Repository<Role>;
@@ -33,6 +35,12 @@ export class RoleService implements IRoleService {
       name: In(permissions),
     });
 
+    if (!permissionEntities) {
+      throw new PermissionNotFoundError(
+        PermissionErrorMessage.PERMISSION_NOT_FOUND
+      );
+    }
+
     const newRole = this.roleRepository.create({
       name,
       permissions: permissionEntities,
@@ -54,6 +62,12 @@ export class RoleService implements IRoleService {
     const permissionEntities = await this.permissionRepository.findBy({
       name: In(permissions),
     });
+
+    if (!permissionEntities) {
+      throw new PermissionNotFoundError(
+        PermissionErrorMessage.PERMISSION_NOT_FOUND
+      );
+    }
 
     role.permissions = permissionEntities;
     await this.roleRepository.save(role);

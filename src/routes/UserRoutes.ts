@@ -4,6 +4,8 @@ import { UserService } from "../services/UserService";
 import { checkJwt } from "../middleware/CheckJWT";
 import { checkRole } from "../middleware/CheckRole";
 import { UserRoles } from "../constants/user/UserRoles";
+import { checkPermissions } from "../middleware/CheckPermission";
+import { Permissions } from "../constants/permission/Permissions";
 
 const router = Router();
 
@@ -18,7 +20,11 @@ router.get("/:id", checkJwt, (req: Request, res: Response) =>
 );
 router.get(
   "/",
-  [checkJwt, checkRole([UserRoles.ADMIN])],
+  [
+    checkJwt,
+    checkRole([UserRoles.ADMIN]),
+    checkPermissions([Permissions.GET_ALL_USERS]),
+  ],
   (req: Request, res: Response) => userController.getAllUsers(req, res)
 );
 router.put("/:id/update", checkJwt, (req: Request, res: Response) =>
