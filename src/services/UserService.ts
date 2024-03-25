@@ -25,21 +25,21 @@ export class UserService implements IUserService {
 
   async existingUserEmail(
     email: string
-  ): Promise<{ found: boolean; userId?: number }> {
+  ): Promise<{ found: boolean; id?: number }> {
     const existingUser = await this.userRepository.findOneBy({ email: email });
     if (existingUser) {
-      return { found: true, userId: existingUser.id };
+      return { found: true, id: existingUser.id };
     }
     return { found: false };
   }
   async existingUserName(
     username: string
-  ): Promise<{ found: boolean; userId?: number }> {
+  ): Promise<{ found: boolean; id?: number }> {
     const existingUser = await this.userRepository.findOneBy({
       username: username,
     });
     if (existingUser) {
-      return { found: true, userId: existingUser.id };
+      return { found: true, id: existingUser.id };
     }
     return { found: false };
   }
@@ -120,15 +120,15 @@ export class UserService implements IUserService {
     }
 
     if (updates.email && updates.email !== existingUser.email) {
-      const emailExists = await this.existingUserEmail(updates.email);
-      if (emailExists.found && emailExists.userId !== userId) {
+      const { found, id } = await this.existingUserEmail(updates.email);
+      if (found && id !== userId) {
         throw new UserAlreadyExistsError(UserErrorMessage.USER_EMAIL_EXISTS);
       }
     }
 
     if (updates.username && updates.username !== existingUser.username) {
-      const usernameExists = await this.existingUserName(updates.username);
-      if (usernameExists.found && usernameExists.userId !== userId) {
+      const { found, id } = await this.existingUserName(updates.username);
+      if (found && id !== userId) {
         throw new UserAlreadyExistsError(
           UserErrorMessage.USERNAME_ALREADY_EXISTS
         );
