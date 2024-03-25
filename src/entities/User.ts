@@ -15,7 +15,6 @@ import {
 } from "class-validator";
 import { UserErrorMessage } from "../constants/user/UserErrorMessage";
 import { UserFieldValidation } from "../constants/user/UserFieldValidation";
-import { UserRoles } from "../constants/user/UserRoles";
 import { Role } from "./Role";
 
 @Entity()

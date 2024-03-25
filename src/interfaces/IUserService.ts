@@ -1,7 +1,9 @@
 import { User } from "../entities/User";
 
 export interface IUserService {
-  existingUser(email: string): Promise<boolean>;
+  existingUserEmail(
+    email: string
+  ): Promise<{ found: boolean; userId?: number }>;
   createUser(user: Partial<User>): Promise<User>;
   getUserById(userId: number): Promise<User>;
   getAllUsers(): Promise<User[]>;

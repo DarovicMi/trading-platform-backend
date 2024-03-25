@@ -23,9 +23,25 @@ export class UserService implements IUserService {
     this.roleRepository = AppDataSource.getRepository(Role);
   }
 
-  async existingUser(email: string): Promise<boolean> {
+  async existingUserEmail(
+    email: string
+  ): Promise<{ found: boolean; userId?: number }> {
     const existingUser = await this.userRepository.findOneBy({ email: email });
-    return existingUser ? true : false;
+    if (existingUser) {
+      return { found: true, userId: existingUser.id };
+    }
+    return { found: false };
+  }
+  async existingUserName(
+    username: string
+  ): Promise<{ found: boolean; userId?: number }> {
+    const existingUser = await this.userRepository.findOneBy({
+      username: username,
+    });
+    if (existingUser) {
+      return { found: true, userId: existingUser.id };
+    }
+    return { found: false };
   }
 
   async createUser(user: Partial<User>): Promise<User> {
@@ -40,9 +56,16 @@ export class UserService implements IUserService {
       throw new UserValidationError(UserErrorMessage.USER_VALIDATION_ERROR);
     }
 
-    const existingUser = await this.existingUser(user.email);
-    if (existingUser) {
-      throw new UserAlreadyExistsError(UserErrorMessage.USER_EXISTS);
+    const existingUserEmail = await this.existingUserEmail(user.email);
+    if (existingUserEmail.found) {
+      throw new UserAlreadyExistsError(UserErrorMessage.USER_EMAIL_EXISTS);
+    }
+
+    const existingUserName = await this.existingUserName(user.username);
+    if (existingUserName.found) {
+      throw new UserAlreadyExistsError(
+        UserErrorMessage.USERNAME_ALREADY_EXISTS
+      );
     }
 
     const encryptedPassword = await bcrypt.hash(
@@ -97,11 +120,18 @@ export class UserService implements IUserService {
     }
 
     if (updates.email && updates.email !== existingUser.email) {
-      const emailExists = await this.userRepository.findOneBy({
-        email: updates.email,
-      });
-      if (emailExists && emailExists.id !== userId) {
-        throw new UserAlreadyExistsError(UserErrorMessage.USER_EXISTS);
+      const emailExists = await this.existingUserEmail(updates.email);
+      if (emailExists.found && emailExists.userId !== userId) {
+        throw new UserAlreadyExistsError(UserErrorMessage.USER_EMAIL_EXISTS);
+      }
+    }
+
+    if (updates.username && updates.username !== existingUser.username) {
+      const usernameExists = await this.existingUserName(updates.username);
+      if (usernameExists.found && usernameExists.userId !== userId) {
+        throw new UserAlreadyExistsError(
+          UserErrorMessage.USERNAME_ALREADY_EXISTS
+        );
       }
     }
 
