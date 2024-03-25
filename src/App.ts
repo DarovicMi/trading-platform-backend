@@ -1,11 +1,12 @@
 import "reflect-metadata";
 import "dotenv/config";
+
 import { AppDataSource } from "./config/DatabaseConfig";
-import express from "express";
 import { parseJsonMiddleware } from "./middleware/JSONParse";
-import cookieParser from "cookie-parser";
 import { csrfErrorHandler, csrfProtection } from "./middleware/CheckCSRF";
 
+import express from "express";
+import cookieParser from "cookie-parser";
 import userRoutes from "./routes/UserRoutes";
 import authRoutes from "./routes/AuthRoutes";
 import roleRoutes from "./routes/RoleRoutes";

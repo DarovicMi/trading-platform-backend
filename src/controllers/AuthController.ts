@@ -153,7 +153,7 @@ export class AuthController {
       if (!token) {
         return res
           .status(401)
-          .send({ message: AuthenticationErrorMessage.NO_TOKEN });
+          .send({ message: AuthenticationErrorMessage.NO_ACCESS_TOKEN });
       }
 
       const decoded = jwt.verify(token, JWT_SECRET);

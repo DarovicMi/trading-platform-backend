@@ -96,6 +96,15 @@ export class UserService implements IUserService {
       throw new UserNotFoundError(UserErrorMessage.USER_NOT_FOUND, userId);
     }
 
+    if (updates.email && updates.email !== existingUser.email) {
+      const emailExists = await this.userRepository.findOneBy({
+        email: updates.email,
+      });
+      if (emailExists && emailExists.id !== userId) {
+        throw new UserAlreadyExistsError(UserErrorMessage.USER_EXISTS);
+      }
+    }
+
     if (newRoleId !== undefined) {
       const newRole = await this.roleRepository.findOneBy({
         id: newRoleId,

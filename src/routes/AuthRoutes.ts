@@ -5,11 +5,16 @@ import { checkRole } from "../middleware/CheckRole";
 import { UserRoles } from "../constants/user/UserRoles";
 import { checkPermissions } from "../middleware/CheckPermission";
 import { Permissions } from "../constants/permission/Permissions";
+import { importantRateLimiter } from "../middleware/RateLimiter";
 
 const router = Router();
 
-router.post("/login", AuthController.login);
-router.post("/refresh-token", AuthController.refreshToken);
+router.post("/login", importantRateLimiter, AuthController.login);
+router.post(
+  "/refresh-token",
+  importantRateLimiter,
+  AuthController.refreshToken
+);
 router.get(
   "/me",
   [

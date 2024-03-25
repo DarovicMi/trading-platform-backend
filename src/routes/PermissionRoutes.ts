@@ -8,6 +8,7 @@ import { Request, Response } from "express";
 import { checkPermissions } from "../middleware/CheckPermission";
 import { Permissions } from "../constants/permission/Permissions";
 import { csrfProtection } from "../middleware/CheckCSRF";
+import { lessImportantRateLimiter } from "../middleware/RateLimiter";
 
 const router = express.Router();
 const permissionService = new PermissionService();
@@ -18,8 +19,9 @@ router.post(
   [
     checkJwt,
     checkRole([UserRoles.ADMIN]),
-    checkPermissions([Permissions.CREATE_PERMISSION]),
     csrfProtection,
+    checkPermissions([Permissions.CREATE_PERMISSION]),
+    lessImportantRateLimiter,
   ],
   (req: Request, res: Response) =>
     permissionController.createPermission(req, res)
@@ -30,6 +32,7 @@ router.get(
     checkJwt,
     checkRole([UserRoles.ADMIN]),
     checkPermissions([Permissions.GET_PERMISSIONS]),
+    lessImportantRateLimiter,
   ],
   (req: Request, res: Response) =>
     permissionController.getAllPermissions(req, res)
@@ -40,6 +43,7 @@ router.get(
     checkJwt,
     checkRole([UserRoles.ADMIN]),
     checkPermissions([Permissions.GET_PERMISSION]),
+    lessImportantRateLimiter,
   ],
   (req: Request, res: Response) =>
     permissionController.getPermissionById(req, res)
@@ -49,8 +53,9 @@ router.put(
   [
     checkJwt,
     checkRole([UserRoles.ADMIN]),
-    checkPermissions([Permissions.UPDATE_PERMISSION]),
     csrfProtection,
+    checkPermissions([Permissions.UPDATE_PERMISSION]),
+    lessImportantRateLimiter,
   ],
   (req: Request, res: Response) =>
     permissionController.updatePermission(req, res)
@@ -60,8 +65,9 @@ router.delete(
   [
     checkJwt,
     checkRole([UserRoles.ADMIN]),
-    checkPermissions([Permissions.DELETE_PERMISSION]),
     csrfProtection,
+    checkPermissions([Permissions.DELETE_PERMISSION]),
+    lessImportantRateLimiter,
   ],
   (req: Request, res: Response) =>
     permissionController.deletePermission(req, res)
