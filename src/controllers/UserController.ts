@@ -106,7 +106,7 @@ export class UserController {
     try {
       const userId = parseInt(req.params.id);
       const requestingUserId = req.user?.userId;
-      if (userId !== requestingUserId) {
+      if (userId !== requestingUserId && req.user?.role !== UserRoles.ADMIN) {
         return res.status(403).json({
           message:
             RoleAuthorizationErrorMessage.ONLY_OWN_PROFILE_DELETE_ALLOWED,

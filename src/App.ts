@@ -11,10 +11,13 @@ import userRoutes from "./routes/UserRoutes";
 import authRoutes from "./routes/AuthRoutes";
 import roleRoutes from "./routes/RoleRoutes";
 import permissionRoutes from "./routes/PermissionRoutes";
+import cors from "cors";
+import { corsOptions } from "./middleware/Cors";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors(corsOptions));
 app.use(parseJsonMiddleware);
 app.use(cookieParser());
 app.use(csrfProtection);
