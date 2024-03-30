@@ -61,6 +61,7 @@ export class EmailService {
 
     user.isActive = true;
     user.activationToken = null;
+    user.activationTokenExpires = null;
 
     await this.userRepository.save(user);
     return user;
