@@ -78,6 +78,12 @@ export class User {
   @ManyToOne(() => Role)
   role: Role;
 
+  @Column({ nullable: true, type: "varchar", length: 255 })
+  activationToken: string | null;
+
+  @Column({ nullable: true, type: "timestamp" })
+  activationTokenExpires: Date | null;
+
   @Column({ nullable: true })
   refreshToken?: string;
 }

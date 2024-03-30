@@ -29,14 +29,14 @@ export class CoinController {
       await this.coinService.fetchAndStoreCoinData();
       return res
         .status(201)
-        .json({ message: CoinInformationalMessage.FETCHED_SUCCESSFULLY });
+        .send({ message: CoinInformationalMessage.FETCHED_SUCCESSFULLY });
     } catch (error) {
       if (error instanceof CoinFetchError) {
-        return res.status(400).json({ message: error.message });
+        return res.status(400).send({ message: error.message });
       } else {
         return res
           .status(500)
-          .json({ message: ServerErrorMessage.SERVER_ERROR });
+          .send({ message: ServerErrorMessage.SERVER_ERROR });
       }
     }
   }
@@ -46,7 +46,7 @@ export class CoinController {
       const marketData = await this.coinService.getMarketData();
       return res.json(marketData);
     } catch (error) {
-      return res.status(500).json({ message: ServerErrorMessage.SERVER_ERROR });
+      return res.status(500).send({ message: ServerErrorMessage.SERVER_ERROR });
     }
   }
 
@@ -56,7 +56,7 @@ export class CoinController {
       if (isNaN(coinId)) {
         return res
           .status(400)
-          .json({ message: CoinErrorMessage.INVALID_FORMAT });
+          .send({ message: CoinErrorMessage.INVALID_FORMAT });
       }
 
       const marketData = await this.coinService.getMarketDataByCoinId(coinId);
@@ -68,9 +68,9 @@ export class CoinController {
       return res.status(200).json(marketData);
     } catch (error) {
       if (error instanceof CoinNotFoundError) {
-        return res.status(404).json({ message: error.message });
+        return res.status(404).send({ message: error.message });
       }
-      return res.status(500).json({ message: ServerErrorMessage.SERVER_ERROR });
+      return res.status(500).send({ message: ServerErrorMessage.SERVER_ERROR });
     }
   }
 
@@ -89,14 +89,13 @@ export class CoinController {
         .json({ message: CoinInformationalMessage.FETCHED_SUCCESSFULLY });
     } catch (error) {
       if (error instanceof CoinNotFoundError) {
-        return res.status(404).json({ message: error.message });
+        return res.status(404).send({ message: error.message });
       } else if (error instanceof MarketDataFetchError) {
-        return res.status(400).json({ message: error.message });
+        return res.status(400).send({ message: error.message });
       } else if (error instanceof InvalidFormatError) {
-        return res.status(400).json({ message: error.message });
+        return res.status(400).send({ message: error.message });
       }
-      console.error(error);
-      return res.status(500).json({ message: ServerErrorMessage.SERVER_ERROR });
+      return res.status(500).send({ message: ServerErrorMessage.SERVER_ERROR });
     }
   }
 }

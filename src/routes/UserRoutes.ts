@@ -20,11 +20,13 @@ const userController = new UserController(userService);
 router.post("/signUp", importantRateLimiter, (req: Request, res: Response) =>
   userController.createUser(req, res)
 );
+
 router.get(
   "/:id",
   [checkJwt, checkRole([UserRoles.ADMIN]), lessImportantRateLimiter],
   (req: Request, res: Response) => userController.getUserById(req, res)
 );
+
 router.get(
   "/",
   [
@@ -35,6 +37,7 @@ router.get(
   ],
   (req: Request, res: Response) => userController.getAllUsers(req, res)
 );
+
 router.put(
   "/:id/update",
   [
@@ -46,6 +49,7 @@ router.put(
   ],
   (req: Request, res: Response) => userController.updateUser(req, res)
 );
+
 router.delete(
   "/:id/delete",
   [

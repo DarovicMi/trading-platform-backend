@@ -13,6 +13,8 @@ import { UserRoles } from "../constants/user/UserRoles";
 import { UserDefaultRoleError } from "../errors/user/UserDefaultRoleError";
 import { RoleNotFoundError } from "../errors/role-authorization/RoleNotFoundError";
 import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage ";
+import { v4 as uuidv4 } from "uuid";
+import { EMAIL_ACTIVATION_LINK, EmailService } from "./EmailService";
 
 export class UserService implements IUserService {
   private userRepository: Repository<User>;
@@ -32,6 +34,7 @@ export class UserService implements IUserService {
     }
     return { found: false };
   }
+
   async existingUserName(
     username: string
   ): Promise<{ found: boolean; id?: number }> {
@@ -88,7 +91,23 @@ export class UserService implements IUserService {
       role: defaultRole,
     });
 
+    const activationToken = uuidv4();
+    registeredUser.activationToken = activationToken;
+    registeredUser.isActive = false;
+
+    const activationTokenExpiry = new Date();
+    activationTokenExpiry.setHours(activationTokenExpiry.getHours() + 1);
+
+    registeredUser.activationTokenExpires = activationTokenExpiry;
+
     await this.userRepository.save(registeredUser);
+
+    const activationLink = `${EMAIL_ACTIVATION_LINK}${activationToken}`;
+
+    await EmailService.sendVerificationEmail(
+      registeredUser.email,
+      activationLink
+    );
 
     return registeredUser;
   }
@@ -152,6 +171,14 @@ export class UserService implements IUserService {
     });
 
     return updatedUser;
+  }
+
+  async getUserByEmail(email: string) {
+    const user = this.userRepository.findOneBy({ email: email });
+    if (!user) {
+      throw new UserNotFoundError(UserErrorMessage.USER_NOT_FOUND);
+    }
+    return user;
   }
 
   async deleteUser(userId: number): Promise<void> {

@@ -47,9 +47,9 @@ export class AuthController {
         return res.status(401).send(UserErrorMessage.USER_NOT_FOUND);
       }
 
-      //   if (!user.isActive) {
-      //     return res.status(401).send(UserErrorMessages.USER_IS_INACTIVE);
-      //   }
+      if (!user.isActive) {
+        return res.status(401).send(UserErrorMessage.USER_IS_INACTIVE);
+      }
 
       if (!bcrypt.compareSync(password, user.password)) {
         return res.status(401).send(UserErrorMessage.USER_INVALID_CREDENTIALS);

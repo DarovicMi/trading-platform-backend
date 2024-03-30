@@ -93,9 +93,9 @@ export class UserController {
       });
     } catch (error) {
       if (error instanceof UserNotFoundError) {
-        return res.status(404).json({ message: error.message });
+        return res.status(404).send({ message: error.message });
       } else if (error instanceof UserAlreadyExistsError) {
-        return res.status(400).json({ message: error.message });
+        return res.status(400).send({ message: error.message });
       }
 
       return res.status(500).json({ message: ServerErrorMessage.SERVER_ERROR });
