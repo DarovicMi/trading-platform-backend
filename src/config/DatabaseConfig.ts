@@ -2,6 +2,8 @@ import { DataSource } from "typeorm";
 import { User } from "../entities/User";
 import { Role } from "../entities/Role";
 import { Permission } from "../entities/Permission";
+import { Coin } from "../entities/Coin";
+import { MarketData } from "../entities/MarketData";
 
 const DB_TYPE = process.env.DB_TYPE as "mysql";
 const DB_HOST = process.env.DB_HOST;
@@ -19,7 +21,7 @@ export const AppDataSource = new DataSource({
   username: DB_USERNAME,
   password: DB_PASSWORD,
   database: DB_NAME,
-  entities: [User, Role, Permission],
+  entities: [User, Role, Permission, Coin, MarketData],
   synchronize: DB_SYNCHRONIZE,
   logging: DB_LOGGING,
 });

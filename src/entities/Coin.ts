@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
-
+import { MarketData } from "./MarketData";
+import { OneToMany } from "typeorm";
 @Entity()
 export class Coin {
   @PrimaryGeneratedColumn()
@@ -67,4 +68,7 @@ export class Coin {
 
   @Column("timestamp")
   lastUpdated: Date;
+
+  @OneToMany(() => MarketData, (marketData) => marketData.coin)
+  marketData: MarketData[];
 }

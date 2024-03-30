@@ -3,12 +3,13 @@ import "dotenv/config";
 
 import { AppDataSource } from "./config/DatabaseConfig";
 import { parseJsonMiddleware } from "./middleware/JSONParse";
-import { csrfErrorHandler, csrfProtection } from "./middleware/CheckCSRF";
+import { csrfErrorHandler } from "./middleware/CheckCSRF";
 
 import express from "express";
 import cookieParser from "cookie-parser";
 import userRoutes from "./routes/UserRoutes";
 import authRoutes from "./routes/AuthRoutes";
+import coinRoutes from "./routes/CoinRoutes";
 import roleRoutes from "./routes/RoleRoutes";
 import permissionRoutes from "./routes/PermissionRoutes";
 import cors from "cors";
@@ -20,12 +21,13 @@ const PORT = process.env.PORT || 3000;
 app.use(cors(corsOptions));
 app.use(parseJsonMiddleware);
 app.use(cookieParser());
-app.use(csrfProtection);
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/permissions", permissionRoutes);
+app.use("/api/market", coinRoutes);
+
 app.use(csrfErrorHandler);
 
 app.get("/api/csrf-token", (req, res) => {
