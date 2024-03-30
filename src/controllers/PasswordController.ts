@@ -4,6 +4,8 @@ import { ServerErrorMessage } from "../constants/server/ServerErrorMessage";
 import { PasswordMessage } from "../constants/password/PasswordMessage";
 import { InvalidOrExpiredPasswordResetTokenError } from "../errors/password/InvalidOrExpiredPasswordResetTokenError";
 import { UserErrorMessage } from "../constants/user/UserErrorMessage";
+import { UserNotFoundError } from "../errors/user/UserNotFoundError";
+import { IncorrectPasswordError } from "../errors/password/IncorrectPasswordError";
 
 export class PasswordController {
   constructor(private passwordService: PasswordService) {
@@ -63,7 +65,11 @@ export class PasswordController {
         .status(200)
         .json({ message: PasswordMessage.PASSWORD_SUCCESSFULLY_CHANGED });
     } catch (error) {
-      console.error(error);
+      if (error instanceof UserNotFoundError) {
+        return res.status(404).send({ message: error.message });
+      } else if (error instanceof IncorrectPasswordError) {
+        return res.status(400).send({ message: error.message });
+      }
       return res.status(500).json({ message: ServerErrorMessage.SERVER_ERROR });
     }
   }
