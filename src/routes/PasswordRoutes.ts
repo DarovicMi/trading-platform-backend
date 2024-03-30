@@ -30,8 +30,8 @@ router.post(
   [
     checkJwt,
     checkRole([UserRoles.ADMIN, UserRoles.USER]),
-    checkPermissions([Permissions.CHANGE_PASSWORD]),
     csrfProtection,
+    checkPermissions([Permissions.CHANGE_PASSWORD]),
     lessImportantRateLimiter,
   ],
   (req: Request, res: Response) => passwordController.changePassword(req, res)
