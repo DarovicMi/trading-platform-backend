@@ -7,7 +7,6 @@ import { MarketData } from "../entities/MarketData";
 import { CoinNotFoundError } from "../errors/coin/CoinNotFoundError";
 import { MarketDataFetchError } from "../errors/coin/MarketDataFetchError";
 import { InvalidFormatError } from "../errors/coin/InvalidFormatError";
-import { LessThan } from "typeorm";
 
 export class CoinService implements ICoinService {
   private coinRepository = AppDataSource.getRepository(Coin);
@@ -78,40 +77,40 @@ export class CoinService implements ICoinService {
   }
 
   async fetchAndStoreMarketData(coinId: string, days: string): Promise<void> {
-    const daysRegex = /^(?:[0-7]|7)$/;
+    const daysRegex = /^(?:[1-7]|7)$/;
     if (!daysRegex.test(days)) {
       throw new InvalidFormatError(CoinErrorMessage.INVALID_FORMAT);
     }
 
     const marketDataResponse = await this.fetchMarketChartData(coinId, days);
-    const coin = await this.coinRepository.findOne({
-      where: { coinId: coinId },
-    });
+    const coin = await this.coinRepository.findOneBy({ coinId });
 
     if (!coin) {
       throw new CoinNotFoundError(CoinErrorMessage.COIN_NOT_FOUND);
     }
 
-    const latestTimestamp = Math.max(
-      ...marketDataResponse.prices.map((entry: any) => entry[0])
-    );
+    await AppDataSource.transaction(async (transactionEntityManager) => {
+      for (const [timestamp, price] of marketDataResponse.prices) {
+        const existingData = await transactionEntityManager.findOne(
+          MarketData,
+          {
+            where: { coin, timestamp },
+          }
+        );
 
-    await this.marketDataRepository.delete({
-      coin: coin,
-      timestamp: LessThan(latestTimestamp),
+        if (existingData) {
+          existingData.price = price;
+          await transactionEntityManager.save(existingData);
+        } else {
+          const newMarketData = transactionEntityManager.create(MarketData, {
+            coin: coin,
+            price: price,
+            timestamp: timestamp,
+          });
+          await transactionEntityManager.save(newMarketData);
+        }
+      }
     });
-
-    const prices = marketDataResponse.prices;
-
-    const marketDataEntities = prices.map((priceEntry: any) => {
-      return {
-        coin: coin,
-        price: priceEntry[1],
-        timestamp: priceEntry[0],
-      };
-    });
-
-    await this.marketDataRepository.save(marketDataEntities);
   }
 
   private async fetchMarketChartData(
@@ -140,6 +139,7 @@ export class CoinService implements ICoinService {
   async getMarketData(): Promise<MarketData[]> {
     return this.marketDataRepository.find();
   }
+
   async getMarketDataByCoinId(coinId: number) {
     const coinExists = await this.coinRepository.findOneBy({ id: coinId });
 

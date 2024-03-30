@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 import { UserErrorMessage } from "../constants/user/UserErrorMessage";
 import { ServerErrorMessage } from "../constants/server/ServerErrorMessage";
 import { AuthenticationErrorMessage } from "../constants/authentication/AuthenticationErrorMessage";
+import { UserInformationalMessage } from "../constants/user/UserInformationalMessage";
 
 const NODE_ENV = process.env.NODE_ENV === "production";
 
@@ -186,6 +187,41 @@ export class AuthController {
           .send({ message: AuthenticationErrorMessage.ACCESS_TOKEN_INVALID });
       }
       res.status(500).send({ message: ServerErrorMessage.SERVER_ERROR });
+    }
+  };
+
+  static logout = async (req: Request, res: Response) => {
+    try {
+      const token = req.cookies[JWT_REFRESH_TOKEN_STRING];
+      if (token) {
+        const userRepository = AppDataSource.getRepository(User);
+        const jwtPayload = jwt.verify(token, JWT_SECRET) as any;
+        const user = await userRepository.findOneBy({ id: jwtPayload.userId });
+
+        if (user) {
+          user.refreshToken = "";
+          await userRepository.save(user);
+        }
+      }
+
+      res.cookie(JWT_ACCESS_TOKEN_STRING, "", {
+        httpOnly: true,
+        secure: NODE_ENV,
+        maxAge: 0,
+      });
+
+      res.cookie(JWT_REFRESH_TOKEN_STRING, "", {
+        httpOnly: true,
+        secure: NODE_ENV,
+        maxAge: 0,
+        path: JWT_COOKIE_REFRESH_TOKEN_PATH,
+      });
+
+      return res
+        .status(200)
+        .send({ message: UserInformationalMessage.USER_LOGGED_OUT });
+    } catch (error) {
+      return res.status(500).send({ message: ServerErrorMessage.SERVER_ERROR });
     }
   };
 }
