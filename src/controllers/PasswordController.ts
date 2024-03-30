@@ -23,8 +23,14 @@ export class PasswordController {
 
   async resetPassword(req: Request, res: Response) {
     try {
-      const { newPassword, token } = req.body;
-      await this.passwordService.resetPassword(token, newPassword);
+      const { newPassword } = req.body;
+      const { token } = req.query;
+      if (!token) {
+        return res
+          .status(404)
+          .send({ message: PasswordMessage.INVALID_OR_EXPIRED_PASSWORD_TOKEN });
+      }
+      await this.passwordService.resetPassword(token as string, newPassword);
       return res
         .status(200)
         .json({ message: PasswordMessage.PASSWORD_SUCCESSFULLY_RESET });

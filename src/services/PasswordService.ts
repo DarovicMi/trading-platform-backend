@@ -30,7 +30,7 @@ export class PasswordService {
 
     await this.userRepository.save(user);
 
-    const resetLink = `${CLIENT_URL}/reset-password?token=${resetToken}`;
+    const resetLink = `${CLIENT_URL}/password-reset?token=${resetToken}`;
     await EmailService.sendResetPasswordEmail(user.email, resetLink);
   }
 
