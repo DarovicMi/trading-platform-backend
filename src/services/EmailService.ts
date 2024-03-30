@@ -101,4 +101,28 @@ export class EmailService {
     const activationLink = `${EMAIL_ACTIVATION_LINK}${newToken}`;
     await EmailService.sendVerificationEmail(user.email, activationLink);
   }
+
+  static async sendResetPasswordEmail(email: string, resetLink: string) {
+    const transporter = nodemailer.createTransport({
+      service: EMAIL_PROVIDER,
+      auth: {
+        user: EMAIL_USER,
+        pass: EMAIL_PASS,
+      },
+    });
+    const mailOptions = {
+      from: EMAIL_USER,
+      to: email,
+      subject: "CashCraft - Reset Your Password",
+      html: `<p>You requested to reset your password. Please click the link below to proceed:</p><p><a href="${resetLink}">${resetLink}</a></p><p>If you did not request this, please ignore this email.</p>`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending reset password email:", error);
+      } else {
+        console.log("Reset password email sent:", info.response);
+      }
+    });
+  }
 }

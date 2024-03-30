@@ -12,6 +12,7 @@ import authRoutes from "./routes/AuthRoutes";
 import coinRoutes from "./routes/CoinRoutes";
 import roleRoutes from "./routes/RoleRoutes";
 import emailRoutes from "./routes/EmailRoutes";
+import passwordRoutes from "./routes/PasswordRoutes";
 import permissionRoutes from "./routes/PermissionRoutes";
 import cors from "cors";
 import { corsOptions } from "./middleware/Cors";
@@ -24,6 +25,7 @@ app.use(parseJsonMiddleware);
 app.use(cookieParser());
 
 app.use("/api/email", emailRoutes);
+app.use("/api/", passwordRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
