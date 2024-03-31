@@ -3,7 +3,7 @@ import "dotenv/config";
 
 import { AppDataSource } from "./config/DatabaseConfig";
 import { parseJsonMiddleware } from "./middleware/JSONParse";
-import { csrfErrorHandler } from "./middleware/CheckCSRF";
+import { csrfErrorHandler, csrfProtection } from "./middleware/CheckCSRF";
 
 import express from "express";
 import cookieParser from "cookie-parser";
@@ -27,6 +27,7 @@ app.use(cookieParser());
 app.use("/api/email", emailRoutes);
 app.use("/api/", passwordRoutes);
 app.use("/api/users", userRoutes);
+app.use(csrfProtection);
 app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/permissions", permissionRoutes);

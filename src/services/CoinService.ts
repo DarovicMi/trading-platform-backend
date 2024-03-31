@@ -7,13 +7,38 @@ import { MarketData } from "../entities/MarketData";
 import { CoinNotFoundError } from "../errors/coin/CoinNotFoundError";
 import { MarketDataFetchError } from "../errors/coin/MarketDataFetchError";
 import { InvalidFormatError } from "../errors/coin/InvalidFormatError";
+import { DeepPartial } from "typeorm";
 
 export class CoinService implements ICoinService {
   private coinRepository = AppDataSource.getRepository(Coin);
   private marketDataRepository = AppDataSource.getRepository(MarketData);
 
-  async addCoins(coinsData: Partial<Coin>[]): Promise<Coin[]> {
-    return this.coinRepository.save(coinsData);
+  async addOrUpdateCoins(coinsData: Partial<Coin>[]): Promise<Coin[]> {
+    const savedCoins: Coin[] = [];
+
+    await this.coinRepository.manager.transaction(
+      async (transactionalEntityManager) => {
+        for (const coinData of coinsData) {
+          const existingCoin = await transactionalEntityManager.findOne(Coin, {
+            where: { coinId: coinData.coinId },
+          });
+
+          let coin: Coin;
+          if (existingCoin) {
+            coin = transactionalEntityManager.merge(
+              Coin,
+              existingCoin,
+              coinData as DeepPartial<Coin>
+            );
+          } else {
+            coin = transactionalEntityManager.create(Coin, coinData);
+          }
+          const savedCoin = await transactionalEntityManager.save(coin);
+          savedCoins.push(savedCoin);
+        }
+      }
+    );
+    return savedCoins;
   }
 
   async getAllCoins(): Promise<Coin[]> {
@@ -45,7 +70,7 @@ export class CoinService implements ICoinService {
       atlDate: new Date(coin.atl_date),
       lastUpdated: new Date(coin.last_updated),
     }));
-    await this.addCoins(formattedCoins);
+    await this.addOrUpdateCoins(formattedCoins);
   }
 
   private async fetchCoinDataFromAPI(): Promise<any[]> {

@@ -189,14 +189,6 @@ export class UserService implements IUserService {
     return updatedUser;
   }
 
-  async getUserByEmail(email: string) {
-    const user = this.userRepository.findOneBy({ email: email });
-    if (!user) {
-      throw new UserNotFoundError(UserErrorMessage.USER_NOT_FOUND);
-    }
-    return user;
-  }
-
   async deleteUser(userId: number): Promise<void> {
     const user = await this.userRepository.findOneBy({ id: userId });
     if (!user) {
