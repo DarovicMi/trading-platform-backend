@@ -7,7 +7,7 @@ import { UserNotFoundError } from "../errors/user/UserNotFoundError";
 import { UserInformationalMessage } from "../constants/user/UserInformationalMessage";
 import { ServerErrorMessage } from "../constants/server/ServerErrorMessage";
 import { UserRoles } from "../constants/user/UserRoles";
-import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage ";
+import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage";
 
 export class UserController {
   private userService: UserService;

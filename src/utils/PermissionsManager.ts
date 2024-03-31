@@ -1,5 +1,5 @@
 import { AppDataSource } from "../config/DatabaseConfig";
-import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage ";
+import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage";
 import { Role } from "../entities/Role";
 import { RoleNotFoundError } from "../errors/role-authorization/RoleNotFoundError";
 

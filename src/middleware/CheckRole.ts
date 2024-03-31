@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { UserRoles } from "../constants/user/UserRoles";
-import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage ";
+import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage";
 
 export const checkRole = (roles: UserRoles[]) => {
   return (req: Request, res: Response, next: NextFunction) => {

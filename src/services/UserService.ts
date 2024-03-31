@@ -12,7 +12,7 @@ import { Role } from "../entities/Role";
 import { UserRoles } from "../constants/user/UserRoles";
 import { UserDefaultRoleError } from "../errors/user/UserDefaultRoleError";
 import { RoleNotFoundError } from "../errors/role-authorization/RoleNotFoundError";
-import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage ";
+import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage";
 import { v4 as uuidv4 } from "uuid";
 import { EmailService } from "./EmailService";
 import { ValidateUser } from "../utils/ValidateUser";
@@ -30,7 +30,6 @@ export class UserService implements IUserService {
     email: string
   ): Promise<{ found: boolean; id?: number }> {
     const existingUser = await this.userRepository.findOneBy({ email: email });
-    console.log(existingUser);
 
     if (existingUser) {
       return { found: true, id: existingUser.id };

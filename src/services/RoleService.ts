@@ -2,7 +2,7 @@ import { AppDataSource } from "../config/DatabaseConfig";
 import { Role } from "../entities/Role";
 import { Permission } from "../entities/Permission";
 import { In, Repository } from "typeorm";
-import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage ";
+import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage";
 import { RoleAlreadyExistsError } from "../errors/role-authorization/RoleAlreadyExistsError";
 import { RoleNotFoundError } from "../errors/role-authorization/RoleNotFoundError";
 import { IRoleService } from "../interfaces/IRoleService";

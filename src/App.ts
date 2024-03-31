@@ -23,11 +23,11 @@ const PORT = process.env.PORT || 3000;
 app.use(cors(corsOptions));
 app.use(parseJsonMiddleware);
 app.use(cookieParser());
+//app.use(csrfProtection);
 
 app.use("/api/email", emailRoutes);
 app.use("/api/", passwordRoutes);
 app.use("/api/users", userRoutes);
-app.use(csrfProtection);
 app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/permissions", permissionRoutes);
