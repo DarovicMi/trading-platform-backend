@@ -13,8 +13,7 @@ const EMAIL_PROVIDER = process.env.EMAIL_PROVIDER as string;
 const EMAIL_USER = process.env.EMAIL_USER as string;
 const EMAIL_PASS = process.env.EMAIL_PASS as string;
 const EMAIL_SUBJECT = process.env.EMAIL_SUBJECT as string;
-export const EMAIL_ACTIVATION_LINK = process.env
-  .EMAIL_ACTIVATION_LINK as string;
+const EMAIL_ACTIVATION_LINK = process.env.EMAIL_ACTIVATION_LINK as string;
 
 export class EmailService {
   private userRepository = AppDataSource.getRepository(User);
@@ -41,6 +40,11 @@ export class EmailService {
         console.log("Verification email sent:", info.response);
       }
     });
+  }
+
+  static async sendActivationEmail(user: User): Promise<void> {
+    const activationLink = `${EMAIL_ACTIVATION_LINK}${user.activationToken}`;
+    await this.sendVerificationEmail(user.email, activationLink);
   }
 
   async activateUser(token: string): Promise<User> {

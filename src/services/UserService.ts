@@ -14,7 +14,7 @@ import { UserDefaultRoleError } from "../errors/user/UserDefaultRoleError";
 import { RoleNotFoundError } from "../errors/role-authorization/RoleNotFoundError";
 import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage ";
 import { v4 as uuidv4 } from "uuid";
-import { EMAIL_ACTIVATION_LINK, EmailService } from "./EmailService";
+import { EmailService } from "./EmailService";
 import { ValidateUser } from "../utils/ValidateUser";
 
 export class UserService implements IUserService {
@@ -119,18 +119,13 @@ export class UserService implements IUserService {
     const userInput = await this.createUser(user);
     await this.userRepository.save(userInput);
 
-    await this.sendActivationEmail(userInput);
+    await EmailService.sendActivationEmail(userInput);
 
     return userInput;
   }
 
   private createActivationToken(): string {
     return uuidv4();
-  }
-
-  private async sendActivationEmail(user: User): Promise<void> {
-    const activationLink = `${EMAIL_ACTIVATION_LINK}${user.activationToken}`;
-    await EmailService.sendVerificationEmail(user.email, activationLink);
   }
 
   async getUserById(userId: number): Promise<User> {
