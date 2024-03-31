@@ -15,6 +15,7 @@ import { RoleNotFoundError } from "../errors/role-authorization/RoleNotFoundErro
 import { RoleAuthorizationErrorMessage } from "../constants/role/RoleAuthorizationErrorMessage ";
 import { v4 as uuidv4 } from "uuid";
 import { EMAIL_ACTIVATION_LINK, EmailService } from "./EmailService";
+import { ValidateUser } from "../utils/ValidateUser";
 
 export class UserService implements IUserService {
   private userRepository: Repository<User>;
@@ -29,6 +30,8 @@ export class UserService implements IUserService {
     email: string
   ): Promise<{ found: boolean; id?: number }> {
     const existingUser = await this.userRepository.findOneBy({ email: email });
+    console.log(existingUser);
+
     if (existingUser) {
       return { found: true, id: existingUser.id };
     }
@@ -47,32 +50,29 @@ export class UserService implements IUserService {
     return { found: false };
   }
 
-  async createUser(user: Partial<User>): Promise<User> {
-    if (
-      !user ||
-      !user.username ||
-      !user.email ||
-      !user.password ||
-      !user.firstName ||
-      !user.lastName
-    ) {
-      throw new UserValidationError(UserErrorMessage.USER_VALIDATION_ERROR);
-    }
-
-    const existingUserEmail = await this.existingUserEmail(user.email);
-    if (existingUserEmail.found) {
+  private async ensureUniqueUser(
+    email: string,
+    username: string
+  ): Promise<void> {
+    const emailExists = await this.existingUserEmail(email);
+    if (emailExists.found) {
       throw new UserAlreadyExistsError(UserErrorMessage.USER_EMAIL_EXISTS);
     }
 
-    const existingUserName = await this.existingUserName(user.username);
-    if (existingUserName.found) {
+    const usernameExists = await this.existingUserName(username);
+    if (usernameExists.found) {
       throw new UserAlreadyExistsError(
         UserErrorMessage.USERNAME_ALREADY_EXISTS
       );
     }
+  }
 
+  private async createUser(userInput: Partial<User>): Promise<User> {
+    if (userInput.password === undefined) {
+      throw new UserValidationError(UserErrorMessage.USER_VALIDATION_ERROR);
+    }
     const encryptedPassword = await bcrypt.hash(
-      user.password,
+      userInput.password,
       UserFieldValidation.PASSWORD_ENCRYPTION_SALT_ROUNDS
     );
 
@@ -85,31 +85,52 @@ export class UserService implements IUserService {
       );
     }
 
-    const registeredUser = this.userRepository.create({
-      ...user,
-      password: encryptedPassword,
-      role: defaultRole,
-    });
-
-    const activationToken = uuidv4();
-    registeredUser.activationToken = activationToken;
-    registeredUser.isActive = false;
-
-    const activationTokenExpiry = new Date();
-    activationTokenExpiry.setHours(activationTokenExpiry.getHours() + 1);
-
-    registeredUser.activationTokenExpires = activationTokenExpiry;
-
-    await this.userRepository.save(registeredUser);
-
-    const activationLink = `${EMAIL_ACTIVATION_LINK}${activationToken}`;
-
-    await EmailService.sendVerificationEmail(
-      registeredUser.email,
-      activationLink
+    const activationToken = this.createActivationToken();
+    const activationTokenExpiry = new Date(
+      new Date().getTime() + 60 * 60 * 1000
     );
 
-    return registeredUser;
+    return this.userRepository.create({
+      ...userInput,
+      password: encryptedPassword,
+      role: defaultRole,
+      activationToken,
+      activationTokenExpires: activationTokenExpiry,
+      isActive: false,
+    });
+  }
+
+  async saveUser(user: Partial<User>): Promise<User> {
+    if (
+      !user ||
+      !user.username ||
+      !user.email ||
+      !user.password ||
+      !user.firstName ||
+      !user.lastName
+    ) {
+      throw new UserValidationError(UserErrorMessage.USER_VALIDATION_ERROR);
+    }
+
+    await ValidateUser.validateUserInput(user);
+
+    await this.ensureUniqueUser(user.email, user.username);
+
+    const userInput = await this.createUser(user);
+    await this.userRepository.save(userInput);
+
+    await this.sendActivationEmail(userInput);
+
+    return userInput;
+  }
+
+  private createActivationToken(): string {
+    return uuidv4();
+  }
+
+  private async sendActivationEmail(user: User): Promise<void> {
+    const activationLink = `${EMAIL_ACTIVATION_LINK}${user.activationToken}`;
+    await EmailService.sendVerificationEmail(user.email, activationLink);
   }
 
   async getUserById(userId: number): Promise<User> {

@@ -16,6 +16,7 @@ import {
 import { UserErrorMessage } from "../constants/user/UserErrorMessage";
 import { UserFieldValidation } from "../constants/user/UserFieldValidation";
 import { Role } from "./Role";
+import { IsPhoneNumber } from "../utils/CustomValidators";
 
 @Entity()
 export class User {
@@ -62,6 +63,11 @@ export class User {
   @IsNotEmpty()
   @IsString()
   lastName: string;
+
+  @Column({ name: "phone_number" })
+  @IsNotEmpty()
+  @IsPhoneNumber({ message: UserFieldValidation.PHONE_NUMBER_VALIDATION })
+  phoneNumber: string;
 
   @Column({ type: "decimal", default: 0.0 })
   balance: number;

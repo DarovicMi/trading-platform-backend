@@ -19,7 +19,7 @@ export class UserController {
   async createUser(req: Request, res: Response): Promise<Response> {
     try {
       const user: User = req.body;
-      const newUser = await this.userService.createUser(user);
+      const newUser = await this.userService.saveUser(user);
       return res.status(201).json({
         message: UserInformationalMessage.USER_CREATED,
         data: newUser,
@@ -27,10 +27,12 @@ export class UserController {
     } catch (error) {
       if (
         error instanceof UserValidationError ||
-        error instanceof UserAlreadyExistsError
+        error instanceof UserAlreadyExistsError ||
+        error instanceof UserValidationError
       ) {
         return res.status(400).json({ message: error.message });
       }
+      console.error(error);
       return res.status(500).json({ message: ServerErrorMessage.SERVER_ERROR });
     }
   }

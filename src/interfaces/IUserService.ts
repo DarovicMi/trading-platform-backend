@@ -3,7 +3,7 @@ import { User } from "../entities/User";
 export interface IUserService {
   existingUserEmail(email: string): Promise<{ found: boolean; id?: number }>;
   existingUserName(username: string): Promise<{ found: boolean; id?: number }>;
-  createUser(user: Partial<User>): Promise<User>;
+  saveUser(user: Partial<User>): Promise<User>;
   getUserById(userId: number): Promise<User>;
   getAllUsers(): Promise<User[]>;
   updateUser(

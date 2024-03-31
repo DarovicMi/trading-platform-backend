@@ -10,4 +10,5 @@ export const UserFieldValidation = {
 
   USERNAME_MIN_LENGTH: 8,
   USERNAME_MAX_LENGTH: 24,
+  PHONE_NUMBER_VALIDATION: "Error validating phone. Phone Number is not valid.",
 };
