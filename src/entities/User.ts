@@ -64,6 +64,11 @@ export class User {
   @IsString()
   lastName: string;
 
+  @Column()
+  @IsNotEmpty()
+  @IsString()
+  country: string;
+
   @Column({ name: "phone_number" })
   @IsNotEmpty()
   @IsPhoneNumber({ message: UserFieldValidation.PHONE_NUMBER_VALIDATION })
