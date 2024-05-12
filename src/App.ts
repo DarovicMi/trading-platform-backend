@@ -20,9 +20,9 @@ import { corsOptions } from "./middleware/Cors";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(parseJsonMiddleware);
-app.use(cookieParser());
 //app.use(csrfProtection);
 
 app.use("/api/email", emailRoutes);
@@ -35,7 +35,7 @@ app.use("/api/market", coinRoutes);
 
 app.use(csrfErrorHandler);
 
-app.get("/api/csrf-token", (req, res) => {
+app.get("/api/csrf-token", csrfProtection, (req, res) => {
   res.json({ csrfToken: req.csrfToken() });
 });
 

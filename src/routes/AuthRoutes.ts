@@ -34,4 +34,6 @@ router.post(
   AuthController.logout
 );
 
+router.get("/loggedin", [], AuthController.isUserLoggedIn);
+
 export default router;

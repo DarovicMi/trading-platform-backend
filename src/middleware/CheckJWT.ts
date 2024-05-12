@@ -13,13 +13,13 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
       .send({ message: AuthenticationErrorMessage.ACCESS_TOKEN_REQUIRED });
   }
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+  jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
+    if (err) {
+      return res
+        .status(401)
+        .send({ message: AuthenticationErrorMessage.ACCESS_TOKEN_INVALID });
+    }
     (req as any).user = decoded;
     next();
-  } catch (error) {
-    return res
-      .status(401)
-      .send({ message: AuthenticationErrorMessage.ACCESS_TOKEN_INVALID });
-  }
+  });
 };

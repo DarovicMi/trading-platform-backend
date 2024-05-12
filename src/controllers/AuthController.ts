@@ -65,6 +65,7 @@ export class AuthController {
         httpOnly: true,
         secure: NODE_ENV,
         maxAge: parseInt(JWT_COOKIE_ACCESS_TOKEN_MAX_AGE),
+        sameSite: "none",
       });
 
       const refreshToken = jwt.sign(
@@ -78,6 +79,7 @@ export class AuthController {
         secure: NODE_ENV,
         maxAge: parseInt(JWT_COOKIE_REFRESH_TOKEN_MAX_AGE),
         path: JWT_COOKIE_REFRESH_TOKEN_PATH,
+        sameSite: "none",
       });
 
       user.refreshToken = refreshToken;
@@ -127,6 +129,7 @@ export class AuthController {
       httpOnly: true,
       secure: NODE_ENV,
       maxAge: parseInt(JWT_COOKIE_ACCESS_TOKEN_MAX_AGE),
+      sameSite: "none",
     });
 
     const newRefreshToken = jwt.sign(
@@ -140,6 +143,7 @@ export class AuthController {
       secure: NODE_ENV,
       maxAge: parseInt(JWT_COOKIE_REFRESH_TOKEN_MAX_AGE),
       path: JWT_COOKIE_REFRESH_TOKEN_PATH,
+      sameSite: "none",
     });
 
     user.refreshToken = newRefreshToken;
@@ -208,6 +212,7 @@ export class AuthController {
         httpOnly: true,
         secure: NODE_ENV,
         maxAge: 0,
+        sameSite: "none",
       });
 
       res.cookie(JWT_REFRESH_TOKEN_STRING, "", {
@@ -215,11 +220,36 @@ export class AuthController {
         secure: NODE_ENV,
         maxAge: 0,
         path: JWT_COOKIE_REFRESH_TOKEN_PATH,
+        sameSite: "none",
       });
 
       return res
         .status(200)
         .send({ message: UserInformationalMessage.USER_LOGGED_OUT });
+    } catch (error) {
+      return res.status(500).send({ message: ServerErrorMessage.SERVER_ERROR });
+    }
+  };
+
+  static isUserLoggedIn = async (req: Request, res: Response) => {
+    try {
+      const token = req.cookies[JWT_ACCESS_TOKEN_STRING];
+      if (!token) {
+        return res.status(200).send({
+          message: AuthenticationErrorMessage.NO_ACCESS_TOKEN,
+          loggedIn: false,
+        });
+      }
+
+      jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
+        if (err) {
+          return res.status(200).send({
+            message: AuthenticationErrorMessage.ACCESS_TOKEN_INVALID,
+            loggedIn: false,
+          });
+        }
+        return res.status(200).json({ loggedIn: true });
+      });
     } catch (error) {
       return res.status(500).send({ message: ServerErrorMessage.SERVER_ERROR });
     }

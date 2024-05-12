@@ -21,7 +21,7 @@ router.post(
   "/add-coins",
   [
     checkJwt,
-    checkRole([UserRoles.ADMIN]),
+    checkRole([UserRoles.ADMIN, UserRoles.USER]),
     csrfProtection,
     checkPermissions([Permissions.ADD_COINS]),
     importantRateLimiter,
@@ -31,12 +31,11 @@ router.post(
 );
 
 router.get(
-  "/coins/all",
+  "/coins",
   [
     checkJwt,
     checkRole([UserRoles.ADMIN, UserRoles.USER]),
     checkPermissions([Permissions.GET_ALL_COINS]),
-    lessImportantRateLimiter,
   ],
   (req: Request, res: Response) => coinController.getAllCoins(req, res)
 );
