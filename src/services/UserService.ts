@@ -101,7 +101,6 @@ export class UserService implements IUserService {
 
   async saveUser(user: Partial<User>): Promise<User> {
     if (
-      !user ||
       !user.username ||
       !user.email ||
       !user.password ||

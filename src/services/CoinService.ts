@@ -8,7 +8,7 @@ import { CoinNotFoundError } from "../errors/coin/CoinNotFoundError";
 import { MarketDataFetchError } from "../errors/coin/MarketDataFetchError";
 import { InvalidFormatError } from "../errors/coin/InvalidFormatError";
 import { DeepPartial } from "typeorm";
-
+import { MoreThan } from "typeorm";
 export class CoinService implements ICoinService {
   private coinRepository = AppDataSource.getRepository(Coin);
   private marketDataRepository = AppDataSource.getRepository(MarketData);
@@ -102,37 +102,45 @@ export class CoinService implements ICoinService {
   }
 
   async fetchAndStoreMarketData(coinId: string, days: string): Promise<void> {
-    const daysRegex = /^(?:[1-7]|7)$/;
-    if (!daysRegex.test(days)) {
+    if (!/^(?:[1-7]|7)$/.test(days)) {
       throw new InvalidFormatError(CoinErrorMessage.INVALID_FORMAT);
     }
 
     const marketDataResponse = await this.fetchMarketChartData(coinId, days);
     const coin = await this.coinRepository.findOneBy({ coinId });
-
     if (!coin) {
       throw new CoinNotFoundError(CoinErrorMessage.COIN_NOT_FOUND);
     }
 
-    await AppDataSource.transaction(async (transactionEntityManager) => {
-      for (const [timestamp, price] of marketDataResponse.prices) {
-        const existingData = await transactionEntityManager.findOne(
-          MarketData,
-          {
-            where: { coin, timestamp },
-          }
-        );
+    const existingTimestamps = new Set(
+      (
+        await this.marketDataRepository.find({
+          where: {
+            coin,
+            timestamp: MoreThan(
+              Date.now() - parseInt(days) * 24 * 60 * 60 * 1000
+            ),
+          },
+          select: ["timestamp"],
+        })
+      ).map((data) => +data.timestamp)
+    );
 
-        if (existingData) {
-          existingData.price = price;
-          await transactionEntityManager.save(existingData);
+    await AppDataSource.transaction(async (transactionalEntityManager) => {
+      for (const [timestamp, price] of marketDataResponse.prices) {
+        const timestampAsNumber = +timestamp;
+        if (existingTimestamps.has(timestampAsNumber)) {
+          await transactionalEntityManager.update(
+            MarketData,
+            { coin, timestamp: timestampAsNumber },
+            { price }
+          );
         } else {
-          const newMarketData = transactionEntityManager.create(MarketData, {
-            coin: coin,
-            price: price,
-            timestamp: timestamp,
+          await transactionalEntityManager.insert(MarketData, {
+            coin,
+            price,
+            timestamp: timestampAsNumber,
           });
-          await transactionEntityManager.save(newMarketData);
         }
       }
     });
@@ -176,5 +184,17 @@ export class CoinService implements ICoinService {
       coin: { id: coinId },
     });
     return marketData;
+  }
+
+  async getCoinById(coinId: string): Promise<Coin> {
+    if (!coinId) {
+      throw new CoinNotFoundError(CoinErrorMessage.COIN_NOT_FOUND);
+    }
+
+    const coin = await this.coinRepository.findOneBy({ coinId });
+    if (!coin) {
+      throw new CoinNotFoundError(CoinErrorMessage.COIN_NOT_FOUND);
+    }
+    return coin;
   }
 }

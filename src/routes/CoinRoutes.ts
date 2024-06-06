@@ -24,7 +24,6 @@ router.post(
     checkRole([UserRoles.ADMIN, UserRoles.USER]),
     csrfProtection,
     checkPermissions([Permissions.ADD_COINS]),
-    importantRateLimiter,
   ],
   (req: Request, res: Response) =>
     coinController.fetchAndStoreCoinData(req, res)
@@ -44,10 +43,9 @@ router.post(
   "/coins/add-market-data",
   [
     checkJwt,
-    checkRole([UserRoles.ADMIN]),
+    checkRole([UserRoles.ADMIN, UserRoles.USER]),
     csrfProtection,
     checkPermissions([Permissions.ADD_MARKET_DATA]),
-    importantRateLimiter,
   ],
   (req: Request, res: Response) =>
     coinController.fetchAndStoreMarketData(req, res)
@@ -74,6 +72,12 @@ router.get(
   ],
   (req: Request, res: Response) =>
     coinController.getMarketDataByCoinId(req, res)
+);
+
+router.get(
+  "/coins/:coinId",
+  [checkJwt, checkRole([UserRoles.ADMIN, UserRoles.USER])],
+  (req: Request, res: Response) => coinController.getCoinById(req, res)
 );
 
 export default router;

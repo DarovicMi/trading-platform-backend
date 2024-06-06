@@ -79,6 +79,7 @@ export class CoinController {
     try {
       const coinId = req.query.coinId as string;
       const days = req.query.days as string;
+
       if (!coinId && !days) {
         return res
           .status(404)
@@ -89,6 +90,7 @@ export class CoinController {
         .status(201)
         .json({ message: CoinInformationalMessage.FETCHED_SUCCESSFULLY });
     } catch (error) {
+      console.error(error);
       if (error instanceof CoinNotFoundError) {
         return res.status(404).send({ message: error.message });
       } else if (error instanceof MarketDataFetchError) {
@@ -97,6 +99,20 @@ export class CoinController {
         return res.status(400).send({ message: error.message });
       }
       return res.status(500).send({ message: ServerErrorMessage.SERVER_ERROR });
+    }
+  }
+
+  async getCoinById(req: Request, res: Response) {
+    try {
+      const coinId = req.params.coinId;
+      const coin = await this.coinService.getCoinById(coinId);
+      res.json(coin);
+    } catch (error) {
+      if (error instanceof CoinNotFoundError) {
+        res.status(404).send(error.message);
+      } else {
+        res.status(500).send({ message: ServerErrorMessage.SERVER_ERROR });
+      }
     }
   }
 }

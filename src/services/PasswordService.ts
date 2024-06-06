@@ -26,7 +26,7 @@ export class PasswordService {
 
     const resetToken = uuidv4();
     user.passwordResetToken = resetToken;
-    user.passwordResetTokenExpires = new Date(Date.now() + 3600000); // 1 hour from now
+    user.passwordResetTokenExpires = new Date(Date.now() + 3600000);
 
     await this.userRepository.save(user);
 

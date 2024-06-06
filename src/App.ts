@@ -14,6 +14,7 @@ import roleRoutes from "./routes/RoleRoutes";
 import emailRoutes from "./routes/EmailRoutes";
 import passwordRoutes from "./routes/PasswordRoutes";
 import permissionRoutes from "./routes/PermissionRoutes";
+import transactionRoutes from "./routes/TransactionRoutes";
 import cors from "cors";
 import { corsOptions } from "./middleware/Cors";
 
@@ -32,6 +33,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/permissions", permissionRoutes);
 app.use("/api/market", coinRoutes);
+app.use("/api/transaction", transactionRoutes);
 
 app.use(csrfErrorHandler);
 

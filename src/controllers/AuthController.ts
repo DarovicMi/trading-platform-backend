@@ -32,7 +32,7 @@ export class AuthController {
       const { email, password } = req.body;
 
       if (!(email && password)) {
-        return res.status(400).send(UserErrorMessage.USER_VALIDATION_ERROR);
+        return res.status(400).json(UserErrorMessage.USER_VALIDATION_ERROR);
       }
 
       const userRepository = AppDataSource.getRepository(User);
@@ -44,15 +44,21 @@ export class AuthController {
           relations: ["role"],
         });
       } catch (error) {
-        return res.status(401).send(UserErrorMessage.USER_NOT_FOUND);
+        return res
+          .status(401)
+          .json({ message: UserErrorMessage.USER_NOT_FOUND });
       }
 
       if (!user.isActive) {
-        return res.status(401).send(UserErrorMessage.USER_IS_INACTIVE);
+        return res
+          .status(401)
+          .json({ message: UserErrorMessage.USER_IS_INACTIVE });
       }
 
       if (!bcrypt.compareSync(password, user.password)) {
-        return res.status(401).send(UserErrorMessage.USER_INVALID_CREDENTIALS);
+        return res
+          .status(401)
+          .json({ message: UserErrorMessage.USER_INVALID_CREDENTIALS });
       }
 
       const accessToken = jwt.sign(
@@ -65,7 +71,7 @@ export class AuthController {
         httpOnly: true,
         secure: NODE_ENV,
         maxAge: parseInt(JWT_COOKIE_ACCESS_TOKEN_MAX_AGE),
-        sameSite: "none",
+        sameSite: "strict",
       });
 
       const refreshToken = jwt.sign(
@@ -78,8 +84,8 @@ export class AuthController {
         httpOnly: true,
         secure: NODE_ENV,
         maxAge: parseInt(JWT_COOKIE_REFRESH_TOKEN_MAX_AGE),
-        path: JWT_COOKIE_REFRESH_TOKEN_PATH,
-        sameSite: "none",
+        //   path: JWT_COOKIE_REFRESH_TOKEN_PATH,
+        sameSite: "strict",
       });
 
       user.refreshToken = refreshToken;
@@ -87,7 +93,7 @@ export class AuthController {
 
       res.send({ accessToken, refreshToken });
     } catch (error) {
-      res.status(500).send(ServerErrorMessage.SERVER_ERROR);
+      res.status(500).json({ message: ServerErrorMessage.SERVER_ERROR });
     }
   };
 

@@ -4,6 +4,7 @@ import { Role } from "../entities/Role";
 import { Permission } from "../entities/Permission";
 import { Coin } from "../entities/Coin";
 import { MarketData } from "../entities/MarketData";
+import { Transaction } from "../entities/Transaction";
 
 const DB_TYPE = process.env.DB_TYPE as "mysql";
 const DB_HOST = process.env.DB_HOST;
@@ -21,7 +22,7 @@ export const AppDataSource = new DataSource({
   username: DB_USERNAME,
   password: DB_PASSWORD,
   database: DB_NAME,
-  entities: [User, Role, Permission, Coin, MarketData],
+  entities: [User, Role, Permission, Coin, MarketData, Transaction],
   synchronize: DB_SYNCHRONIZE,
   logging: DB_LOGGING,
 });
