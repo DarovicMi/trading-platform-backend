@@ -26,7 +26,7 @@ export class CoinController {
 
   async fetchAndStoreCoinData(req: Request, res: Response) {
     try {
-      await this.coinService.fetchAndStoreCoinData();
+      await this.coinService.processAndStoreCoinData();
 
       return res.status(201).send({
         message: CoinInformationalMessage.FETCHED_SUCCESSFULLY,

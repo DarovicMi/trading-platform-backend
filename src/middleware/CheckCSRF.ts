@@ -1,6 +1,6 @@
 import csurf from "csurf";
 import { Request, Response, NextFunction } from "express";
-import { AuthenticationErrorMessage } from "../constants/authentication/AuthenticationErrorMessage";
+import { ErrorMessage } from "../constants/authentication/AuthenticationErrorMessage";
 
 export const csrfProtection = csurf({
   cookie: true,
@@ -13,7 +13,5 @@ export function csrfErrorHandler(
   next: NextFunction
 ) {
   if (err.code !== "EBADCSRFTOKEN") return next(err);
-  res
-    .status(403)
-    .send({ message: AuthenticationErrorMessage.CSRF_TOKEN_NOT_FOUND });
+  res.status(403).send({ message: ErrorMessage.CSRF_TOKEN_NOT_FOUND });
 }

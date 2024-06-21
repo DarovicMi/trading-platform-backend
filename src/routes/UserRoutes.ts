@@ -8,7 +8,7 @@ import { checkPermissions } from "../middleware/CheckPermission";
 import { Permissions } from "../constants/permission/Permissions";
 import { csrfProtection } from "../middleware/CheckCSRF";
 import {
-  importantRateLimiter,
+  apiRateLimiter,
   lessImportantRateLimiter,
 } from "../middleware/RateLimiter";
 
@@ -17,7 +17,7 @@ const router = Router();
 const userService = new UserService();
 const userController = new UserController(userService);
 
-router.post("/signUp", importantRateLimiter, (req: Request, res: Response) =>
+router.post("/signUp", apiRateLimiter, (req: Request, res: Response) =>
   userController.createUser(req, res)
 );
 
@@ -45,7 +45,7 @@ router.put(
     checkRole([UserRoles.ADMIN, UserRoles.USER]),
     csrfProtection,
     checkPermissions([Permissions.UPDATE_CURRENT_USER]),
-    importantRateLimiter,
+    apiRateLimiter,
   ],
   (req: Request, res: Response) => userController.updateUser(req, res)
 );
@@ -57,7 +57,7 @@ router.delete(
     checkRole([UserRoles.ADMIN, UserRoles.USER]),
     csrfProtection,
     checkPermissions([Permissions.DELETE_CURRENT_USER]),
-    importantRateLimiter,
+    apiRateLimiter,
   ],
   (req: Request, res: Response) => userController.deleteUser(req, res)
 );

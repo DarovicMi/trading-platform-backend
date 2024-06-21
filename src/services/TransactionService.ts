@@ -2,6 +2,8 @@ import { AppDataSource } from "./../config/DatabaseConfig";
 import { User } from "../entities/User";
 import { Coin } from "../entities/Coin";
 import { Transaction } from "../entities/Transaction";
+import { UserNotFoundError } from "../errors/user/UserNotFoundError";
+import { UserErrorMessage } from "../constants/user/UserErrorMessage";
 
 export class TransactionService {
   static async buyCrypto(userId: number, coinId: number, amount: number) {
@@ -11,7 +13,7 @@ export class TransactionService {
 
     const user = await userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new Error("User not found");
+      throw new UserNotFoundError(UserErrorMessage.USER_NOT_FOUND);
     }
 
     const coin = await coinRepository.findOne({ where: { id: coinId } });

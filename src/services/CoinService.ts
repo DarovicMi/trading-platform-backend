@@ -45,7 +45,7 @@ export class CoinService implements ICoinService {
     return this.coinRepository.find();
   }
 
-  async fetchAndStoreCoinData(): Promise<void> {
+  async processAndStoreCoinData(): Promise<void> {
     const fetchedCoins = await this.fetchCoinDataFromAPI();
     const formattedCoins = fetchedCoins.map((coin) => ({
       coinId: coin.id,
@@ -94,7 +94,7 @@ export class CoinService implements ICoinService {
         );
       }
 
-      const data: Coin[] = (await response.json()) as any[];
+      const data: Coin[] = (await response.json()) as Coin[];
       return data;
     } catch (error) {
       return [];

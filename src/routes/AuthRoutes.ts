@@ -5,18 +5,14 @@ import { checkRole } from "../middleware/CheckRole";
 import { UserRoles } from "../constants/user/UserRoles";
 import { checkPermissions } from "../middleware/CheckPermission";
 import { Permissions } from "../constants/permission/Permissions";
-import { importantRateLimiter } from "../middleware/RateLimiter";
+import { apiRateLimiter } from "../middleware/RateLimiter";
 import { csrfProtection } from "../middleware/CheckCSRF";
 
 const router = Router();
 
-router.post("/login", importantRateLimiter, AuthController.login);
+router.post("/login", apiRateLimiter, AuthController.login);
 
-router.post(
-  "/refresh-token",
-  importantRateLimiter,
-  AuthController.refreshToken
-);
+router.post("/refresh-token", apiRateLimiter, AuthController.refreshToken);
 
 router.get(
   "/me",
@@ -30,7 +26,7 @@ router.get(
 
 router.post(
   "/logout",
-  [checkJwt, csrfProtection, importantRateLimiter],
+  [checkJwt, csrfProtection, apiRateLimiter],
   AuthController.logout
 );
 

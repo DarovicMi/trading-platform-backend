@@ -5,7 +5,7 @@ import * as jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { UserErrorMessage } from "../constants/user/UserErrorMessage";
 import { ServerErrorMessage } from "../constants/server/ServerErrorMessage";
-import { AuthenticationErrorMessage } from "../constants/authentication/AuthenticationErrorMessage";
+import { ErrorMessage } from "../constants/authentication/AuthenticationErrorMessage";
 import { UserInformationalMessage } from "../constants/user/UserInformationalMessage";
 
 const NODE_ENV = process.env.NODE_ENV === "production";
@@ -45,7 +45,7 @@ export class AuthController {
         });
       } catch (error) {
         return res
-          .status(401)
+          .status(404)
           .json({ message: UserErrorMessage.USER_NOT_FOUND });
       }
 
@@ -100,18 +100,14 @@ export class AuthController {
   static refreshToken = async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      return res
-        .status(401)
-        .send(AuthenticationErrorMessage.REFRESH_TOKEN_REQUIRED);
+      return res.status(401).send(ErrorMessage.REFRESH_TOKEN_REQUIRED);
     }
 
     let jwtPayload;
     try {
       jwtPayload = <any>jwt.verify(refreshToken, JWT_SECRET);
     } catch (error) {
-      return res
-        .status(401)
-        .send(AuthenticationErrorMessage.REFRESH_TOKEN_INVALID);
+      return res.status(401).send(ErrorMessage.REFRESH_TOKEN_INVALID);
     }
 
     const userRepository = AppDataSource.getRepository(User);
@@ -120,9 +116,7 @@ export class AuthController {
       relations: ["role"],
     });
     if (!user || user.refreshToken !== refreshToken) {
-      return res
-        .status(401)
-        .send(AuthenticationErrorMessage.REFRESH_TOKEN_INVALID);
+      return res.status(401).send(ErrorMessage.REFRESH_TOKEN_INVALID);
     }
 
     const newAccessToken = jwt.sign(
@@ -162,9 +156,7 @@ export class AuthController {
     try {
       const token = req.cookies[JWT_ACCESS_TOKEN_STRING];
       if (!token) {
-        return res
-          .status(401)
-          .send({ message: AuthenticationErrorMessage.NO_ACCESS_TOKEN });
+        return res.status(401).send({ message: ErrorMessage.NO_ACCESS_TOKEN });
       }
 
       const decoded = jwt.verify(token, JWT_SECRET);
@@ -172,7 +164,7 @@ export class AuthController {
       if (!userId) {
         return res
           .status(401)
-          .send({ message: AuthenticationErrorMessage.ACCESS_TOKEN_INVALID });
+          .send({ message: ErrorMessage.ACCESS_TOKEN_INVALID });
       }
 
       const userRepository = AppDataSource.getRepository(User);
@@ -190,11 +182,11 @@ export class AuthController {
       if (error instanceof jwt.TokenExpiredError) {
         return res
           .status(401)
-          .send({ message: AuthenticationErrorMessage.ACCESS_TOKEN_EXPIRED });
+          .send({ message: ErrorMessage.ACCESS_TOKEN_EXPIRED });
       } else if (error instanceof jwt.JsonWebTokenError) {
         return res
           .status(401)
-          .send({ message: AuthenticationErrorMessage.ACCESS_TOKEN_INVALID });
+          .send({ message: ErrorMessage.ACCESS_TOKEN_INVALID });
       }
       res.status(500).send({ message: ServerErrorMessage.SERVER_ERROR });
     }
@@ -242,7 +234,7 @@ export class AuthController {
       const token = req.cookies[JWT_ACCESS_TOKEN_STRING];
       if (!token) {
         return res.status(200).send({
-          message: AuthenticationErrorMessage.NO_ACCESS_TOKEN,
+          message: ErrorMessage.NO_ACCESS_TOKEN,
           loggedIn: false,
         });
       }
@@ -250,7 +242,7 @@ export class AuthController {
       jwt.verify(token, JWT_SECRET, (err: any, decoded: any) => {
         if (err) {
           return res.status(200).send({
-            message: AuthenticationErrorMessage.ACCESS_TOKEN_INVALID,
+            message: ErrorMessage.ACCESS_TOKEN_INVALID,
             loggedIn: false,
           });
         }

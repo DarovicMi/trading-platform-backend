@@ -6,7 +6,7 @@ import { checkPermissions } from "../middleware/CheckPermission";
 import { Permissions } from "../constants/permission/Permissions";
 import { csrfProtection } from "../middleware/CheckCSRF";
 import {
-  importantRateLimiter,
+  apiRateLimiter,
   lessImportantRateLimiter,
 } from "../middleware/RateLimiter";
 import { CoinService } from "../services/CoinService";
